@@ -1,15 +1,20 @@
 package com.android.example.cameraxapp
 
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.*
@@ -19,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.core.util.Preconditions
 import com.android.example.cameraxapp.databinding.ActivityMainBinding
+import org.jetbrains.annotations.Contract
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,7 +33,7 @@ import java.util.concurrent.Executors
 
 
 typealias LumaListener = (luma: Double) -> Unit
-
+@androidx.camera.camera2.interop.ExperimentalCamera2Interop
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
 
@@ -207,16 +213,16 @@ class MainActivity : AppCompatActivity() {
 
 
 //            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            val mCameraId = 1
-              val cameraSelector = CameraSelector.Builder().addCameraFilter(MyCameraFilter("$mCameraId")).build()
+            val mCameraId = 0
+
+            val selector = selectExternalOrBestCamera(cameraProvider)
 
             try {
                 // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
 
                 // Bind use cases to camera
-                cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture, imageAnalyzer)
+                cameraProvider.bindToLifecycle(this, selector!!, preview, imageCapture, imageAnalyzer)
 
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -224,6 +230,32 @@ class MainActivity : AppCompatActivity() {
 
         }, ContextCompat.getMainExecutor(this))
     }
+
+
+    private fun selectExternalOrBestCamera(provider: ProcessCameraProvider):CameraSelector? {
+        val cam2Infos = provider.availableCameraInfos.map {
+            Camera2CameraInfo.from(it)
+        }.sortedByDescending {
+            // HARDWARE_LEVEL is Int type, with the order of:
+            // LEGACY < LIMITED < FULL < LEVEL_3 < EXTERNAL
+            it.getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        }
+
+        return when {
+            cam2Infos.isNotEmpty() -> {
+                CameraSelector.Builder()
+                    .addCameraFilter {
+                        it.filter { camInfo ->
+                            // cam2Infos[0] is either EXTERNAL or best built-in camera
+                            val thisCamId = Camera2CameraInfo.from(camInfo).cameraId
+                            thisCamId == cam2Infos[0].cameraId
+                        }
+                    }.build()
+            }
+            else -> null
+        }
+    }
+
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
