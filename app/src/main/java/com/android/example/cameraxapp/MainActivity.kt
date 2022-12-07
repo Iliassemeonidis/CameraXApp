@@ -46,85 +46,85 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
-        cameraProviderFuture.addListener({
-            // Used to bind the lifecycle of cameras to the lifecycle owner
-            val cameraProvider = cameraProviderFuture.get()
-
-            // Preview
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
-                }
-
-            // Select back camera as a default
-            val mCameraId = 0
-            val cameraSelector = CameraSelector.Builder().addCameraFilter(MyCameraFilter1("$mCameraId")).build()
-
-            try {
-                // Unbind use cases before rebinding
-                cameraProvider.unbindAll()
-
-                // Bind use cases to camera
-                cameraProvider.bindToLifecycle(
-                    this,
-                    cameraSelector,
-                    preview,
-                    imageCapture
-                )
-
-            } catch(exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
-            }
-
-        }, ContextCompat.getMainExecutor(this))
-    }
-
-
 //    private fun startCamera() {
-//        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
-//            ProcessCameraProvider.getInstance(this)
+//        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 //
-//        imageCapture = ImageCapture.Builder().build();
 //        cameraProviderFuture.addListener({
-//            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get();
+//            // Used to bind the lifecycle of cameras to the lifecycle owner
+//            val cameraProvider = cameraProviderFuture.get()
 //
+//            // Preview
 //            val preview = Preview.Builder()
 //                .build()
 //                .also {
 //                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
 //                }
-//            val mCameraId =0
-//            Log.d(
-//                "AJSHGdLAS",
-//                "${packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL)}"
-//            )
 //
-//            val cameraSelector =
-//                CameraSelector.Builder().addCameraFilter(MyCameraFilter1("$mCameraId")).build()
+//            // Select back camera as a default
+//            val mCameraId = 0
+//            val cameraSelector = CameraSelector.Builder().addCameraFilter(MyCameraFilter1("$mCameraId")).build()
 //
 //            try {
+//                // Unbind use cases before rebinding
 //                cameraProvider.unbindAll()
+//
+//                // Bind use cases to camera
 //                cameraProvider.bindToLifecycle(
 //                    this,
 //                    cameraSelector,
 //                    preview,
 //                    imageCapture
 //                )
-//            } catch (e: ExecutionException) {
-//                e.printStackTrace();
-//                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
-//            } catch (e: InterruptedException) {
-//                e.printStackTrace();
-//                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
-//            } catch (e: IllegalArgumentException) {
-//                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+//
+//            } catch(exc: Exception) {
+//                Log.e(TAG, "Use case binding failed", exc)
 //            }
+//
 //        }, ContextCompat.getMainExecutor(this))
 //    }
+//
+
+    private fun startCamera() {
+        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+            ProcessCameraProvider.getInstance(this)
+
+        imageCapture = ImageCapture.Builder().build();
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get();
+
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
+                }
+            val mCameraId =0
+            Log.d(
+                "AJSHGdLAS",
+                "${packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_EXTERNAL)}"
+            )
+
+            val cameraSelector =
+                CameraSelector.Builder().addCameraFilter(MyCameraFilter1("$mCameraId")).build()
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    this,
+                    cameraSelector,
+                    preview,
+                    imageCapture
+                )
+            } catch (e: ExecutionException) {
+                e.printStackTrace();
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+            } catch (e: InterruptedException) {
+                e.printStackTrace();
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+            } catch (e: IllegalArgumentException) {
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
 //    private fun startCamera() {
 //        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 //
