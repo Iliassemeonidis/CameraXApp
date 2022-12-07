@@ -1,4 +1,3 @@
-/*
 package com.android.example.cameraxapp;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
@@ -36,4 +35,3 @@ public class MyCameraFilter implements CameraFilter {
         return linkedHashSet;
     }
 }
-*/
