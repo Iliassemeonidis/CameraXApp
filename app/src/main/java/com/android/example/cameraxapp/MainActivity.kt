@@ -2,13 +2,15 @@ package com.android.example.cameraxapp
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
-import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ExperimentalCameraFilter
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -22,7 +24,7 @@ import java.util.concurrent.Executors
 
 
 typealias LumaListener = (luma: Double) -> Unit
-@ExperimentalCameraFilter
+
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
 
@@ -62,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 //                }
 //
 //            // Select back camera as a default
-//            val mCameraId = 1
+//            val mCameraId = 0
 //            val cameraSelector = CameraSelector.Builder().addCameraFilter(MyCameraFilter1("$mCameraId")).build()
 //
 //            try {
@@ -83,78 +85,81 @@ class MainActivity : AppCompatActivity() {
 //
 //        }, ContextCompat.getMainExecutor(this))
 //    }
+        private fun startCamera() {
+        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+            ProcessCameraProvider.getInstance(this)
+
+        imageCapture = ImageCapture.Builder().build();
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get();
+
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
+                }
+            val mCameraId = 0
+            val cameraSelector =
+                CameraSelector.Builder().addCameraFilter(MyCameraFilter1("$mCameraId")).build()
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    this,
+                    cameraSelector,
+                    preview,
+                    imageCapture
+                )
+            } catch (e: ExecutionException) {
+                e.printStackTrace();
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+            } catch (e: InterruptedException) {
+                e.printStackTrace();
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+            } catch (e: IllegalArgumentException) {
+                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
 
 
 //    private fun startCamera() {
-//        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
-//            ProcessCameraProvider.getInstance(this)
+//        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 //
-//        imageCapture = ImageCapture.Builder().build();
-//        cameraProviderFuture.addListener({
-//            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get();
 //
-//            val preview = Preview.Builder()
-//                .build()
-//                .also {
-//                    it.setSurfaceProvider(viewBinding.viewFinder.createSurfaceProvider())
-//                }
-//            val mCameraId = 0
-//            val cameraSelector =
-//                CameraSelector.Builder().addCameraFilter(MyCameraFilter()).build()
-//
-//            try {
-//                cameraProvider.unbindAll()
-//                cameraProvider.bindToLifecycle(
-//                    this,
-//                    cameraSelector,
-//                    preview,
-//                    imageCapture
-//                )
-//            } catch (e: ExecutionException) {
-//                e.printStackTrace();
-//                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
-//            } catch (e: InterruptedException) {
-//                e.printStackTrace();
-//                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
-//            } catch (e: IllegalArgumentException) {
-//                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show();
+//        val preview = Preview.Builder()
+//            .build()
+//            .also {
+//                it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
 //            }
-//        }, ContextCompat.getMainExecutor(this))
+//
+//
+//
+//        imageCapture = ImageCapture.Builder().build()
+//        cameraProviderFuture.addListener(
+//            {
+//
+//                val cameraProvider = cameraProviderFuture.get()
+//                val cameraSelector =
+//                    CameraSelector.Builder().addCameraFilter(MyCameraFilter1("0")).build()
+//                try {
+//
+//                    cameraProvider?.unbindAll()
+//                    cameraProvider?.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+//
+//                } catch (e: ExecutionException) {
+//                    e.printStackTrace()
+//                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+//                } catch (e: InterruptedException) {
+//                    e.printStackTrace()
+//                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+//                } catch (e: IllegalArgumentException) {
+//                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+//                }
+//            }, ContextCompat.getMainExecutor(this)
+//        )
 //    }
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
-
-        val preview = Preview.Builder()
-            .build()
-            .also {
-                it.setSurfaceProvider(viewBinding.viewFinder.createSurfaceProvider())
-            }
-
-
-
-        imageCapture = ImageCapture.Builder().build()
-        cameraProviderFuture.addListener({
-
-           val  cameraProvider = cameraProviderFuture.get()
-            val cameraSelector = CameraSelector.Builder().addCameraFilter(MyCameraFilter()).build()
-                try {
-
-                    cameraProvider?.unbindAll()
-                    cameraProvider?.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-
-                } catch (e: ExecutionException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-                } catch (e: IllegalArgumentException) {
-                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-                }
-            }, ContextCompat.getMainExecutor(this)
-        )
-    }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
