@@ -134,8 +134,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
             // Select back camera as a default
-
-
             val mCameraId = 0
 
             val selector = selectExternalOrBestCamera(cameraProvider)
@@ -171,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                         it.filter { camInfo ->
                             // cam2Infos[0] is either EXTERNAL or best built-in camera
                             val thisCamId = Camera2CameraInfo.from(camInfo).cameraId
-                            thisCamId == cam2Infos[0].cameraId
+                            thisCamId == cam2Infos[2].cameraId
                         }
                     }.build()
             }
