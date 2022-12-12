@@ -2,12 +2,14 @@ package com.android.example.cameraxapp
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.FEATURE_CAMERA_EXTERNAL
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.core.util.Preconditions
-
 @SuppressLint("UnsafeOptInUsageError")
 class MyCameraFilter1(private val mId: String) : CameraFilter {
 
@@ -33,8 +35,10 @@ class MyCameraFilter1(private val mId: String) : CameraFilter {
             }
         }
 
-        Log.d(TAG, "PackageManager: ${PackageManager.FEATURE_CAMERA_EXTERNAL}")
-        Log.d(TAG, "Result: ${result[0].cameraState.value}")
+val packageManager = PackageManager.FEATURE_CAMERA_EXTERNAL
+
+        Log.d(TAG, "PackageManager: $packageManager")
+        Log.d(TAG, "PackageManager: $packageManager")
         return result
     }
 }
