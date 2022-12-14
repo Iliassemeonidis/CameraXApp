@@ -8,7 +8,9 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.usb.UsbAccessory
+import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.hardware.usb.UsbManager.EXTRA_DEVICE
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
@@ -22,6 +24,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.android.example.cameraxapp.databinding.ActivityMainBinding
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.*
@@ -54,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
 
 //
-   /* private val usbReceiver = object : BroadcastReceiver() {
+    private val usbReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
             if (ACTION_USB_PERMISSION == intent.action) {
@@ -91,11 +94,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }*/
+    }
 
 
 
-    private val usbReceiver = object : BroadcastReceiver() {
+    /*private val usbReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
             if (ACTION_USB_PERMISSION == intent.action) {
@@ -112,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
+    }*/
 
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -126,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         provide()
 
-      //  chekPermishAndStartCanera()
+        chekPermishAndStartCanera()
     }
 
     private fun chekPermishAndStartCanera() {
@@ -371,7 +374,7 @@ class MainActivity : AppCompatActivity() {
                         it.filter { camInfo ->
                             // cam2Infos[0] is either EXTERNAL or best built-in camera
                             val thisCamId = Camera2CameraInfo.from(camInfo).cameraId
-                            thisCamId == cam2Infos[0].cameraId
+                            thisCamId == cam2Infos[2].cameraId
                         }
                     }.build()
             }
@@ -392,24 +395,24 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int, permissions: Array<String>, grantResults:
-//        IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-//            if (allPermissionsGranted()) {
-//        //        startCamera()
-//            } else {
-//                Toast.makeText(
-//                    this,
-//                    "Permissions not granted by the user.",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//                finish()
-//            }
-//        }
-//    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>, grantResults:
+        IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Permissions not granted by the user.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                finish()
+            }
+        }
+    }
 
 
     companion object {
