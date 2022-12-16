@@ -1,20 +1,20 @@
 //package com.android.example.cameraxapp;
 //
-//import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-//
 //import android.annotation.SuppressLint;
 //import android.util.Log;
 //
 //import androidx.annotation.NonNull;
-//import androidx.annotation.OptIn;
+//import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 //import androidx.camera.core.Camera;
 //import androidx.camera.core.CameraFilter;
+//import androidx.camera.core.ExperimentalCameraFilter;
 //
 //import java.util.Iterator;
 //import java.util.LinkedHashSet;
 //
 //@SuppressLint("UnsafeExperimentalUsageError")
-//@OptIn(markerClass = androidx.camera.core.ExperimentalCameraFilter.class)
+//@ExperimentalCamera2Interop
+//@ExperimentalCameraFilter
 //public class MyCameraFilter implements CameraFilter {
 //    private static final String TAG = "myt";
 //
@@ -34,4 +34,5 @@
 //        linkedHashSet.add(camera); // 最后一个camera
 //        return linkedHashSet;
 //    }
+//
 //}
